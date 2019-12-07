@@ -15,12 +15,12 @@ cd $(dirname $(readlink -f $0))
 #   SCRIPT_NAME - script file name
 #   TRACKING_PATH - path to file or tracking directory
 #   REQUIREMENTS - ist of the packages that must be installed in the system
-#                  for the script to work correctly
+#       for the script to work correctly
 #   ALL_PACKAGES_IS_AVAILABLE - equally 1 if all packets from the REQUIREMENTS
-#                              list installed in the system, otherwise - 0
+#       list installed in the system, otherwise - 0
 #   SAFE - equally 0 if safe mode is disabled, otherwise - 1
 #   CMD_LIST - temporary list of commands to execute (used as a container for
-#              parsing argument line)
+#       parsing argument line)
 #   CMD - command to execute
 #   HELP_TEXT - help information
 SCRIPT_NAME=`basename "$0"`
@@ -47,8 +47,7 @@ MODEX (Execute on Modification) it's script that executes the user's\
 \nExamples:\
 \n\tSet the custom command inside single quotes like:\
 \n\t=> bash $SCRIPT_NAME --path=\"\$PWD\" 'date && echo \"changed...\"'\
-\n\n\
-\nErrors code:\
+\n\n\nErrors code:\
 \n\t1 - all required packages are not installed: ${REQUIREMENTS[@]};\
 \n\t2 - the executable command is not specified;\
 \n\t3 - tracking path not found.\n"
