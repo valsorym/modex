@@ -16,19 +16,13 @@ cd $(dirname $(readlink -f $0))
 #   TRACKING_PATH - path to file or tracking directory
 #   REQUIREMENTS - ist of the packages that must be installed in the system
 #       for the script to work correctly
-#   ALL_PACKAGES_IS_AVAILABLE - equally 1 if all packets from the REQUIREMENTS
-#       list installed in the system, otherwise - 0
 #   SAFE - equally 0 if safe mode is disabled, otherwise - 1
-#   CMD_LIST - temporary list of commands to execute (used as a container for
-#       parsing argument line)
 #   CMD - command to execute
 #   HELP_TEXT - help information
 SCRIPT_NAME=`basename "$0"`
 TRACKING_PATH="$PWD"
-REQUIREMENTS=("bash" "inotifywait")
-ALL_PACKAGES_IS_AVAILABLE=1
+REQUIREMENTS=("bash" "inotifywait") #("pkg_a" "pkg_b" "pkg_c" ...)
 SAFE=0
-CMD_LIST=()
 CMD=""
 HELP_TEXT="\
 MODEX (Execute on Modification) it's script that executes the user's\
@@ -54,6 +48,9 @@ MODEX (Execute on Modification) it's script that executes the user's\
 
 # ARGUMENTS
 # Parsing the argument line.
+#   cmd_list - temporary list of commands to execute (used as a container for
+#       parsing argument line)
+cmd_list=()
 for arg in "$@"
 do
   case $arg in
@@ -70,8 +67,8 @@ do
       shift
       ;;
     *)
-      CMD_LIST+=("$1") # parse commad by parts
-      CMD=${CMD_LIST[*]}
+      cmd_list+=("$1") # parse commad by parts
+      CMD=${cmd_list[*]}
       shift
       ;;
   esac
@@ -87,22 +84,29 @@ fi
 
 # REQUIREMENTS
 # Check the availability of all packages required to run the script.
-echo "Requirements:"
+#   requirements_output - temporary buffer for dialog output
+#   all_packages_is_available - equally 1 if all packets from the REQUIREMENTS
+#       list installed in the system, otherwise - 0
+requirements_output=""
+all_packages_is_available=1
 for pkg in "${REQUIREMENTS[@]}"
 do
   is_exists=`whereis $pkg | cut -d\: -f2`
   if [ -z "$is_exists" ]
   then
-    echo -e "\t[-] $pkg"
-    ALL_PACKAGES_IS_AVAILABLE=0
+    requirements_output+="\t[-] $pkg\n"
+    all_packages_is_available=0
   else
-    echo -e "\t[+] $pkg"
+    requirements_output+="\t[+] $pkg\n"
   fi
 done
 
-if [ $ALL_PACKAGES_IS_AVAILABLE -eq 0 ]
+if [ $all_packages_is_available -eq 0 ]
 then
-  echo -e "\nPlease, install the missing packages..."
+  # Show only when at least one of the dependencies is not installed.
+  echo "Requirements:"
+  echo -e $requirements_output
+  echo -e "Please, install the missing packages..."
   exit 1
 fi
 
