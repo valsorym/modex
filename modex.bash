@@ -21,7 +21,7 @@ cd $(dirname $(readlink -f $0))
 #   HELP_TEXT - help information
 SCRIPT_NAME=`basename "$0"`
 TRACKING_PATH="$PWD"
-REQUIREMENTS=("bash" "inotifywait") #("pkg_a" "pkg_b" "pkg_c" ...)
+REQUIREMENTS=("inotifywait") #("pkg_a" "pkg_b" "pkg_c" ...)
 SAFE=0
 CMD=""
 HELP_TEXT="\
