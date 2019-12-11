@@ -23,6 +23,7 @@ SCRIPT_NAME=`basename "$0"`
 TRACKING_PATH="$PWD"
 REQUIREMENTS=("inotifywait") #("pkg_a" "pkg_b" "pkg_c" ...)
 SAFE=0
+RECURSIVE=0
 CMD=""
 HELP_TEXT="\
 MODEX (Execute on Modification) it's script that executes the user's\
@@ -31,11 +32,13 @@ MODEX (Execute on Modification) it's script that executes the user's\
 \n\t=> bash $SCRIPT_NAME --path=/path/to/tracking/dir/ '<command>'\n\
 \nThe commands are:
 \n\t-h or --help\
-\n\t\tprint this help message and exit 
+\n\t\tprint this help message and exit\
+\n\t-r or --recursive\
+\n\t\twatch directories recursively\
 \n\t-s or --safe\
 \n\t\tfirst run of the command only after changing the data in the tracking\
 \n\t\tdirectory (otherwise, the first run of the command will be executed\
-\n\t\timmediately after the script is run)
+\n\t\timmediately after the script is run)\
 \n\t-p or --path\
 \n\t\tpath to the tracking directory: -p=/path/to/tracking/dir/\n
 \nExamples:\
@@ -60,6 +63,10 @@ do
       ;;
     -s|--safe) # set safe mode
       SAFE=1
+      shift
+      ;;
+    -r|--recursive) # set recursive mode
+      RECURSIVE=1
       shift
       ;;
     -p=*|--path=*) # change tracking path
@@ -129,9 +136,23 @@ then
   eval "$CMD"
 fi
 
-while inotifywait -e modify ${TRACKING_PATH}
+
+while inotifywait $( [ $RECURSIVE -eq 1 ] && printf %s '-r' ) -e modify ${TRACKING_PATH}
 do
   eval "$CMD"
 done
+
+if [ $RECURSIVE -ne 1 ]
+then
+  while inotifywait -e modify ${TRACKING_PATH}
+  do
+    eval "$CMD"
+  done
+else
+  while inotifywait -r -e modify ${TRACKING_PATH}
+  do
+    eval "$CMD"
+  done
+fi
 
 exit 0
