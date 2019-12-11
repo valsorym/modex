@@ -136,23 +136,10 @@ then
   eval "$CMD"
 fi
 
-
-while inotifywait $( [ $RECURSIVE -eq 1 ] && printf %s '-r' ) -e modify ${TRACKING_PATH}
+while inotifywait $([ $RECURSIVE -eq 1 ] && printf %s '-r') \
+                  -e modify ${TRACKING_PATH}
 do
   eval "$CMD"
 done
-
-if [ $RECURSIVE -ne 1 ]
-then
-  while inotifywait -e modify ${TRACKING_PATH}
-  do
-    eval "$CMD"
-  done
-else
-  while inotifywait -r -e modify ${TRACKING_PATH}
-  do
-    eval "$CMD"
-  done
-fi
 
 exit 0
